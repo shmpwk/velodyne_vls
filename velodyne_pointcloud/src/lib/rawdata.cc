@@ -52,7 +52,11 @@
 
 namespace velodyne_rawdata
 {
-  inline float SQR(float val) {return val * val;}
+  inline float square(float val)
+  {
+    return val * val;
+  }
+
 
 ////////////////////////////////////////////////////////////////////////
 //
@@ -81,8 +85,8 @@ namespace velodyne_rawdata
 
     //converting into the hardware velodyne ref (negative yaml and degrees)
     //adding 0.5 perfomrs a centered double to int conversion
-    config_.min_angle = 100 * (2 * M_PI - config_.tmp_min_angle) * 180 / M_PI + 0.5;
-    config_.max_angle = 100 * (2 * M_PI - config_.tmp_max_angle) * 180 / M_PI + 0.5;
+    config_.min_angle = std::lround(100 * (2.0 * M_PI - config_.tmp_min_angle) * 180.0 / M_PI);
+    config_.max_angle = std::lround(100 * (2.0 * M_PI - config_.tmp_max_angle) * 180.0 / M_PI);
     if (config_.min_angle == config_.max_angle) {
       //avoid returning empty cloud if min_angle = max_angle
       config_.min_angle = 0;
@@ -280,8 +284,8 @@ namespace velodyne_rawdata
           float xx = xy_distance * sin_rot_angle - horiz_offset * cos_rot_angle;
           // Calculate temporal Y, use absolute value
           float yy = xy_distance * cos_rot_angle + horiz_offset * sin_rot_angle;
-          if (xx < 0) {xx = -xx;}
-          if (yy < 0) {yy = -yy;}
+          if (xx < 0.0f) {xx = -xx;}
+          if (yy < 0.0f) {yy = -yy;}
 
           // Get 2points calibration values,Linear interpolation to get distance
           // correction for X and Y, that means distance correction use
@@ -290,11 +294,11 @@ namespace velodyne_rawdata
           float distance_corr_y = 0;
           if (corrections.two_pt_correction_available) {
             distance_corr_x = (corrections.dist_correction - corrections.dist_correction_x) *
-              (xx - 2.4) / (25.04 - 2.4) +
+              (xx - 2.4f) / (25.04f - 2.4f) +
               corrections.dist_correction_x;
             distance_corr_x -= corrections.dist_correction;
             distance_corr_y = (corrections.dist_correction - corrections.dist_correction_y) *
-              (yy - 1.93) / (25.04 - 1.93) +
+              (yy - 1.93f) / (25.04f - 1.93f) +
               corrections.dist_correction_y;
             distance_corr_y -= corrections.dist_correction;
           }
@@ -336,11 +340,11 @@ namespace velodyne_rawdata
           intensity = raw->blocks[i].data[k + 2];
 
           const float focal_offset =
-            256 * (1 - corrections.focal_distance / 13100) *
-            (1 - corrections.focal_distance / 13100);
+            256.0f * (1.0f - corrections.focal_distance / 13100.0f) *
+            (1.0f - corrections.focal_distance / 13100.0f);
           const float focal_slope = corrections.focal_slope;
           intensity += focal_slope *
-            (std::abs(focal_offset - 256 * SQR(1 - static_cast < float > (tmp.uint) / 65535)));
+          (std::abs(focal_offset - 256.0f * square((1.0f - distance) / 65535.0f)));
           intensity = (intensity < min_intensity) ? min_intensity : intensity;
           intensity = (intensity > max_intensity) ? max_intensity : intensity;
 
