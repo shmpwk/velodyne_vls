@@ -40,6 +40,8 @@
 
 #include <velodyne_pointcloud/pointcloudXYZIRADT.h>
 #include <velodyne_pointcloud/rawdata.h>
+#include <tier4_autoware_utils/ros/debug_publisher.hpp>
+#include <tier4_autoware_utils/system/stop_watch.hpp>
 
 namespace velodyne_pointcloud
 {
@@ -101,6 +103,10 @@ private:
   std::vector<pcl::PCLPointField> fields_cache_;
   std::unique_ptr<sensor_msgs::msg::PointCloud2> output_ptr_;
   std::unique_ptr<sensor_msgs::msg::PointCloud2> next_output_ptr_;
+
+  /** \brief processing time publisher. **/
+  std::unique_ptr<tier4_autoware_utils::StopWatch<std::chrono::milliseconds>> stop_watch_ptr_;
+  std::unique_ptr<tier4_autoware_utils::DebugPublisher> debug_publisher_;
 };
 
 }  // namespace velodyne_pointcloud

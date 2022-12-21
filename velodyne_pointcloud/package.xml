@@ -37,7 +37,7 @@
   <depend>velodyne_msgs</depend>
   <depend>visualization_msgs</depend>
   <depend>yaml-cpp</depend>
-
+  <depend>tier4_autoware_utils</depend>
   <depend>cv_bridge</depend>
   <depend>image_transport</depend>
 

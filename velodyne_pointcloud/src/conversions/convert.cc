@@ -21,6 +21,9 @@
 #include <yaml-cpp/yaml.h>
 
 #include <velodyne_pointcloud/func.h>
+// Include tier4 autoware utils
+#include <tier4_autoware_utils/ros/debug_publisher.hpp>
+#include <tier4_autoware_utils/system/stop_watch.hpp>
 
 namespace velodyne_pointcloud
 {
@@ -280,6 +283,7 @@ void Convert::fastProcessScan(const velodyne_msgs::msg::VelodyneScan::SharedPtr 
 /** @brief Callback for raw scan messages. */
 void Convert::processScan(const velodyne_msgs::msg::VelodyneScan::SharedPtr scanMsg)
 {
+  stop_watch_ptr_->toc("processing_time", true);
   velodyne_pointcloud::PointcloudXYZIRADT scan_points_xyziradt;
   if (
     velodyne_points_pub_->get_subscription_count() > 0 ||
@@ -412,6 +416,15 @@ void Convert::processScan(const velodyne_msgs::msg::VelodyneScan::SharedPtr scan
   if (marker_array_pub_->get_subscription_count() > 0) {
     const auto velodyne_model_marker = createVelodyneModelMakerMsg(scanMsg->header);
     marker_array_pub_->publish(velodyne_model_marker);
+  }
+  // add processing time for debug
+  if (debug_publisher_) {
+    const double cyclic_time_ms = stop_watch_ptr_->toc("cyclic_time", true);
+    const double processing_time_ms = stop_watch_ptr_->toc("processing_time", true);
+    debug_publisher_->publish<tier4_debug_msgs::msg::Float64Stamped>(
+      "debug/cyclic_time_ms", cyclic_time_ms);
+    debug_publisher_->publish<tier4_debug_msgs::msg::Float64Stamped>(
+      "debug/processing_time_ms", processing_time_ms);
   }
 }
 
